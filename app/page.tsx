@@ -1,5 +1,5 @@
-import Component from "../hero-landing"
+import TrainerSearch from "../trainer-search"
 
 export default function Page() {
-  return <Component />
+  return <TrainerSearch />
 }
