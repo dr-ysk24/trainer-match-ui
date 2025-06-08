@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  role           String    @default("user") // 'user' or 'trainer'
+  image          String?
+  bio            String?   // 👈 これを追加！
+  createdAt      DateTime  @default(now())
+  emailVerified  DateTime?
+
+  accounts       Account[]
+  sessions       Session[]
+
+  trainerProfile TrainerProfile?
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  user               User    @relation(fields: [userId], references: [id])
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id            String   @id @default(cuid())
+  sessionToken  String   @unique
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  expires       DateTime
+}
+
+model TrainerProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  region    String   // 例: 東京, 大阪
+  specialty String   // 例: 筋トレ, ダイエット
+  bio       String?  // 自己紹介
+  hourlyRate Int?     // ✅ これを追加！
+  createdAt DateTime @default(now())
+
+  reviews   Review[]  // ✅ 1対多のリレーション追加
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  trainer    TrainerProfile @relation(fields: [trainerId], references: [id])
+  trainerId  String
+
+  userName   String
+  userImage  String?
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+}
